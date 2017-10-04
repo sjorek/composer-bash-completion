@@ -18,9 +18,9 @@
 
 _composer_search()
 {
-    # ( ${1} -nN --no-ansi search "${2}" | \
+    # ( ${1} --no-ansi -nN search "${2}" | \
     #     grep -E "^[a-zA-Z0-9_-]+\/${2}[a-zA-Z0-9_-]*$" ) 2>/dev/null
-    ${1} -nN --no-ansi search "${2}" 2>/dev/null
+    ${1} --no-ansi -nN search "${2}" 2>/dev/null
 }
 
 _composer_commands()
@@ -34,7 +34,7 @@ _composer_commands()
 
 _composer_options()
 {
-    ( ${1} --no-ansi help ${2} | \
+    ( ${1} --no-ansi --format=txt help ${2} | \
         awk "/Options:/{f=1;next} /Help:/{f=0} f" | \
         grep -o -E "(\-\-[a-z0-9=-]+|-[a-z0-9\\|]+)" | \
         sed -e "s#|# -#g" | \
