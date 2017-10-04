@@ -27,3 +27,6 @@ even if provided by plugins.
      following line in your `.bashrc`:
 
      `source ~/.composer-completion.sh`
+   * c.) If you're using [MacPorts](https://www.macports.org) then you should
+     take a look at my [MacPorts-PHP](https://github.com/sjorek/MacPorts-PHP)
+     repository.
