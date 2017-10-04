@@ -126,4 +126,4 @@ _composer()
 }
 
 complete -o default -F _composer composer composer.phar \
-    $( compgen -ca | grep -E "^composer" | grep -v -E "^composer(.phar)?$" )
+    $( compgen -ca | grep -E "^composer" | grep -v -E "^composer(\\.phar)?$" )
