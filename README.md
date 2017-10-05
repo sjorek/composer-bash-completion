@@ -30,3 +30,13 @@ even if provided by plugins.
    * c.) If you're using [MacPorts](https://www.macports.org) then you should
      take a look at my [MacPorts-PHP](https://sjorek.github.io/MacPorts-PHP)
      repository.
+
+## Want more?
+
+There is a [composer-plugin](https://sjorek.github.io/composer-virtual-environment-plugin/)
+complementing the bash-completion if you're using [MacPorts](http://macports.org),
+especially if you're using my [MacPorts-PHP](https://sjorek.github.io/MacPorts-PHP/)
+repository.
+
+Cheers!
+
