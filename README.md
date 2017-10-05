@@ -28,5 +28,5 @@ even if provided by plugins.
 
      `source ~/.composer-completion.sh`
    * c.) If you're using [MacPorts](https://www.macports.org) then you should
-     take a look at my [MacPorts-PHP](https://github.com/sjorek/MacPorts-PHP)
+     take a look at my [MacPorts-PHP](https://sjorek.github.io/MacPorts-PHP)
      repository.
