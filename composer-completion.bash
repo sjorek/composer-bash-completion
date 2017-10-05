@@ -13,7 +13,7 @@
 # The contained completion routines provide support for completing
 # all composer commands and options, even those provided by plugins.
 #
-# Need help? [RTFM](https://github.com/sjorek/composer-bash-completion)!
+# Need help? [RTFM](https://sjorek.github.io/composer-bash-completion)!
 #
 
 _composer_search()
