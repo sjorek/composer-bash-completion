@@ -1,7 +1,7 @@
 # Composer shell completion for Bash
 
-The `composer-completion.bash` script provides shell completion in bash for
-[composer](https://getcomposer.org).
+The [`composer-completion.bash`](https://github.com/sjorek/composer-bash-completion/blob/master/composer-completion.bash)
+script provides shell completion in bash for [composer](https://getcomposer.org).
 
 The completion routines support completing all composer commands and options,
 even if provided by plugins.
