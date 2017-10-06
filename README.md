@@ -6,6 +6,7 @@ script provides shell completion in bash for [composer](https://getcomposer.org)
 The completion routines support completing all composer commands and options,
 even if provided by plugins.
 
+
 ## Installation
 
 1. Ensure you installed:
@@ -30,6 +31,12 @@ even if provided by plugins.
    * c.) If you're using [MacPorts](https://www.macports.org) then you should
      take a look at my [MacPorts-PHP](https://sjorek.github.io/MacPorts-PHP)
      repository.
+
+
+## Contributing
+
+Look at the [contribution guidelines](CONTRIBUTING.md)
+
 
 ## Want more?
 
