@@ -1,4 +1,4 @@
-# Contributing to PHPUnit
+# Contributing to this project
 
 ## Contributor Code of Conduct
 

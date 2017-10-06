@@ -1,2 +1,2 @@
 theme: jekyll-theme-cayman
-include: [README.md, CONTRIBUTING.md, composer-completion.bash]
+include: [README.md, CONTRIBUTING.md, CODE_OF_CONDUCT.md, composer-completion.bash]
