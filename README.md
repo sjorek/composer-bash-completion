@@ -1,4 +1,4 @@
-# Composer shell completion for Bash
+# [Composer shell completion for Bash](https://sjorek.github.io/composer-bash-completion/)
 
 The [`composer-completion.bash`](composer-completion.bash)
 script provides shell completion in bash for [composer](https://getcomposer.org).
