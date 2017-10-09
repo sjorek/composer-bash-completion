@@ -20,12 +20,12 @@ _composer_search()
 {
     # ( ${1} --no-ansi -nN search "${2}" | \
     #     grep -E "^[a-zA-Z0-9_-]+\/${2}[a-zA-Z0-9_-]*$" ) 2>/dev/null
-    ${1} --no-ansi -nN search "${2}" 2>/dev/null
+    ${1} --no-ansi -nN search ${2} 2>/dev/null
 }
 
 _composer_commands()
 {
-    ( ${1} --no-ansi list | \
+    ( ${1} --no-ansi --format=txt list | \
         awk "/Available commands:/{f=1;next} f" | \
         cut -f 3 -d " " | \
         tr "\\n" " " | \
@@ -34,7 +34,7 @@ _composer_commands()
 
 _composer_options()
 {
-    ( ${1} --no-ansi --format=txt help "${2}" | \
+    ( ${1} --no-ansi --format=txt help ${2} | \
         awk "/Options:/{f=1;next} /Help:/{f=0} f" | \
         grep -o -E "(\-\-[a-z0-9=-]+|-[a-z0-9\\|]+)" | \
         sed -e "s#|# -#g" | \
@@ -63,10 +63,8 @@ _composer_scripts()
 
 _composer_show()
 {
-    # ( ${1} --no-ansi show --direct "${2}" | \
-    #     cut -f1 -d' ' ) 2>/dev/null
-    ( ${1} --no-ansi show "${2}" | \
-        cut -f1 -d' ' ) 2>/dev/null
+    # ( ${1} --no-ansi --format=text --direct -N show "${2}" ) 2>/dev/null
+    ( ${1} --no-ansi --format=text -N show ${2} ) 2>/dev/null
 }
 
 _composer()
@@ -97,56 +95,48 @@ _composer()
         fi
     done
 
-    options=$(_composer_options "${composer}" ${currentCommand})
+    commands="${commandList}"
+    options=$(_composer_options "${composer}" "${currentCommand}")
     if [[ ${current} == -* ]]; then
         currentIsOption=1
     else
         currentIsOption=0
     fi
 
-    if [ "${currentCommand}" = "" ] ; then
-        commands="${commandList}"
-    else
-        case "${currentCommand}" in
-            global|help)
-                commands="${commandList}"
-                ;;
+    case "${currentCommand}" in
+        config)
+            if [ $currentIsOption == 0 ]; then
+                commands=$(_composer_settings "${composer}")
+            fi
+            ;;
 
-            config)
-                if [ $currentIsOption == 0 ]; then
-                    commands=$(_composer_settings "${composer}")
+        run-script)
+            if [ $currentIsOption == 0 ]; then
+                commands=$(_composer_scripts "${composer}")
+            fi
+            ;;
+
+        archive|depends|outdated|remove|show|suggests|update|upgrade)
+            if [ $currentIsOption == 0 ] ; then
+                if [ "${current}" = "" ] ; then
+                    commands=$(_composer_show "${composer}" "${current}")
+                elif [[ "${current}" =~ ^[a-zA-Z0-9_-]*$ ]] ; then
+                    commands=$(_composer_show "${composer}" "${current}*")
                 fi
-                ;;
+            fi
+            ;;
 
-            run-script)
-                if [ $currentIsOption == 0 ]; then
-                    commands=$(_composer_scripts "${composer}")
+        browse|info|install|prohibits|require)
+            if [ $currentIsOption == 0 ] ; then
+                if [ "${current}" = "" ] ; then
+                    commands=$(_composer_show "${composer}" "${current}")
+                elif [[ "${current}" =~ ^[a-zA-Z0-9_-]*$ ]] ; then
+                    commands=$(_composer_search "${composer}" "${current}")
                 fi
-                ;;
+            fi
+            ;;
 
-            archive|depends|outdated|remove|show|suggests|update|upgrade)
-                if [ $currentIsOption == 0 ] && [[ "${current}" =~ ^[a-zA-Z0-9_-]*$ ]]; then
-                    if [ "${current}" = "" ] ; then
-                        commands=$(_composer_show "${composer}" "${current}")
-                    else
-                        commands=$(_composer_show "${composer}" "${current}*")
-                    fi
-                fi
-                ;;
-
-            browse|info|install|prohibits|require)
-                if [ $currentIsOption == 0 ] && [[ "${current}" =~ ^[a-zA-Z0-9_-]*$ ]]; then
-                    if [ "${current}" = "" ] ; then
-                        commands=$(_composer_show "${composer}" "${current}")
-                    else
-                        commands=$(_composer_search "${composer}" "${current}")
-                    fi
-                fi
-                ;;
-
-        esac
-    fi
-
+    esac
 
     # Common part
     if [ $currentIsOption == 1 ]; then
