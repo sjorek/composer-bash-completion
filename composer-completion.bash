@@ -34,7 +34,7 @@ _composer_commands()
 
 _composer_options()
 {
-    ( ${1} --no-ansi --format=txt help ${2} | \
+    ( ${1} --no-ansi --format=txt help "${2}" | \
         awk "/Options:/{f=1;next} /Help:/{f=0} f" | \
         grep -o -E "(\-\-[a-z0-9=-]+|-[a-z0-9\\|]+)" | \
         sed -e "s#|# -#g" | \
@@ -61,6 +61,14 @@ _composer_scripts()
         tr -s " ") 2>/dev/null
 }
 
+_composer_show()
+{
+    # ( ${1} --no-ansi show --direct "${2}" | \
+    #     cut -f1 -d' ' ) 2>/dev/null
+    ( ${1} --no-ansi show "${2}" | \
+        cut -f1 -d' ' ) 2>/dev/null
+}
+
 _composer()
 {
     local composer current options commands
@@ -70,24 +78,26 @@ _composer()
     composer="${COMP_WORDS[0]}"
     current="${COMP_WORDS[COMP_CWORD]}"
 
-    commandList=$(_composer_commands ${composer})
+    commandList=$(_composer_commands "${composer}")
     currentCommand=""
 
     for commandCandidate in "${COMP_WORDS[@]}" ; do
-        if [ "${commandCandidate}" = "${composer}" ] ; then
+        if [ "${commandCandidate}" = "${composer}" ] || [ "${commandCandidate}" = "${composer} global" ] ; then
             continue
         fi
         if [[ "${commandCandidate}" =~ ^[a-z0-9-]+$ ]] && [[ "${commandList}" =~ (^| )${commandCandidate}( |$) ]]; then
-            currentCommand="${commandCandidate}"
-            if [ "${currentCommand}" = "global" ] ; then
+            if [ "${commandCandidate}" = "global" ] ; then
+                composer="${composer} global"
+                commandList=$(_composer_commands "${composer}")
                 continue
+            else
+                currentCommand="${commandCandidate}"
             fi
             break
         fi
     done
 
-    options=$(_composer_options ${composer} ${currentCommand})
-
+    options=$(_composer_options "${composer}" ${currentCommand})
     if [[ ${current} == -* ]]; then
         currentIsOption=1
     else
@@ -104,25 +114,33 @@ _composer()
 
             config)
                 if [ $currentIsOption == 0 ]; then
-                    commands=$(_composer_settings ${composer})
+                    commands=$(_composer_settings "${composer}")
                 fi
                 ;;
 
             run-script)
                 if [ $currentIsOption == 0 ]; then
-                    commands=$(_composer_scripts ${composer})
+                    commands=$(_composer_scripts "${composer}")
                 fi
                 ;;
 
-            depends)
-                if [ $currentIsOption == 0 ]; then
-                    commands=$(_composer_search ${composer} ${current})
+            archive|depends|outdated|remove|show|suggests|update|upgrade)
+                if [ $currentIsOption == 0 ] && [[ "${current}" =~ ^[a-zA-Z0-9_-]*$ ]]; then
+                    if [ "${current}" = "" ] ; then
+                        commands=$(_composer_show "${composer}" "${current}")
+                    else
+                        commands=$(_composer_show "${composer}" "${current}*")
+                    fi
                 fi
                 ;;
 
-            archive|browse|depends|install|prohibits|remove|require|show|suggests|update|upgrade)
-                if [ $currentIsOption == 0 ] && [[ "${current}" =~ ^[a-zA-Z0-9_-]+$ ]]; then
-                    commands=$(_composer_search ${composer} ${current})
+            browse|info|install|prohibits|require)
+                if [ $currentIsOption == 0 ] && [[ "${current}" =~ ^[a-zA-Z0-9_-]*$ ]]; then
+                    if [ "${current}" = "" ] ; then
+                        commands=$(_composer_show "${composer}" "${current}")
+                    else
+                        commands=$(_composer_search "${composer}" "${current}")
+                    fi
                 fi
                 ;;
 
