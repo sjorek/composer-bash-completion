@@ -63,63 +63,78 @@ _composer_scripts()
 
 _composer()
 {
-    local cmd cur prev opts commands isOpts
+    local composer current options commands
+    local commandCandidate commandList currentCommand currentIsOption
+
     COMPREPLY=()
-    cmd="${COMP_WORDS[0]}"
-    cur="${COMP_WORDS[COMP_CWORD]}"
-    prev="${COMP_WORDS[COMP_CWORD-1]}"
+    composer="${COMP_WORDS[0]}"
+    current="${COMP_WORDS[COMP_CWORD]}"
 
-    local base_commands=$(_composer_commands ${cmd})
+    commandList=$(_composer_commands ${composer})
+    currentCommand=""
 
-    if [[ "${prev}" =~ ^[a-z0-9-]+$ ]] && [[ "${base_commands}" =~ (^| )${prev}( |$) ]]; then
-        opts=$(_composer_options ${cmd} ${prev})
+    for commandCandidate in "${COMP_WORDS[@]}" ; do
+        if [ "${commandCandidate}" = "${composer}" ] ; then
+            continue
+        fi
+        if [[ "${commandCandidate}" =~ ^[a-z0-9-]+$ ]] && [[ "${commandList}" =~ (^| )${commandCandidate}( |$) ]]; then
+            currentCommand="${commandCandidate}"
+            if [ "${currentCommand}" = "global" ] ; then
+                continue
+            fi
+            break
+        fi
+    done
+
+    options=$(_composer_options ${composer} ${currentCommand})
+
+    if [[ ${current} == -* ]]; then
+        currentIsOption=1
     else
-        opts=$(_composer_options ${cmd})
+        currentIsOption=0
     fi
 
-    if [[ ${cur} == -* ]]; then
-        isOpts=1
+    if [ "${currentCommand}" = "" ] ; then
+        commands="${commandList}"
     else
-        isOpts=0
+        case "${currentCommand}" in
+            global|help)
+                commands="${commandList}"
+                ;;
+
+            config)
+                if [ $currentIsOption == 0 ]; then
+                    commands=$(_composer_settings ${composer})
+                fi
+                ;;
+
+            run-script)
+                if [ $currentIsOption == 0 ]; then
+                    commands=$(_composer_scripts ${composer})
+                fi
+                ;;
+
+            depends)
+                if [ $currentIsOption == 0 ]; then
+                    commands=$(_composer_search ${composer} ${current})
+                fi
+                ;;
+
+            archive|browse|depends|install|prohibits|remove|require|show|suggests|update|upgrade)
+                if [ $currentIsOption == 0 ] && [[ "${current}" =~ ^[a-zA-Z0-9_-]+$ ]]; then
+                    commands=$(_composer_search ${composer} ${current})
+                fi
+                ;;
+
+        esac
     fi
-
-    case "${prev}" in
-    composer*|global|help)
-        commands="${base_commands}"
-        ;;
-
-    config)
-        if [ $isOpts == 0 ]; then
-            commands=$(_composer_settings ${cmd})
-        fi
-        ;;
-
-    run-script)
-        if [ $isOpts == 0 ]; then
-            commands=$(_composer_scripts ${cmd})
-        fi
-        ;;
-
-    depends)
-        if [ $isOpts == 0 ]; then
-            commands=$(_composer_search ${cmd} ${cur})
-        fi
-        ;;
-
-    archive|browse|depends|install|prohibits|remove|require|show|suggests|update|upgrade)
-        if [ $isOpts == 0 ] && [[ "${cur}" =~ ^[a-zA-Z0-9_-]+$ ]]; then
-            commands=$(_composer_search ${cmd} ${cur})
-        fi
-        ;;
-
-    esac
 
 
     # Common part
-    if [ $isOpts == 1 ]; then
-        COMPREPLY=($( compgen -W "${opts}" -- "${cur}" ))
+    if [ $currentIsOption == 1 ]; then
+        COMPREPLY=($( compgen -W "${options}" -- "${current}" ))
     else
-        COMPREPLY=($( compgen -W "${commands}" -- "${cur}" ))
+        COMPREPLY=($( compgen -W "${commands} ${options}" -- "${current}" ))
     fi
     return 0
 
