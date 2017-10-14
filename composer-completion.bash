@@ -83,7 +83,7 @@ _composer()
         if [ "${commandCandidate}" = "${composer}" ] || [ "${commandCandidate}" = "${composer} global" ] ; then
             continue
         fi
-        if [[ "${commandCandidate}" =~ ^[a-z0-9-]+$ ]] && [[ "${commandList}" =~ (^| )${commandCandidate}( |$) ]]; then
+        if [[ "${commandCandidate}" =~ ^[a-z0-9:-]+$ ]] && [[ "${commandList}" =~ (^| )${commandCandidate}( |$) ]]; then
             if [ "${commandCandidate}" = "global" ] ; then
                 composer="${composer} global"
                 commandList=$(_composer_commands "${composer}")
