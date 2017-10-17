@@ -32,6 +32,14 @@ if type complete &>/dev/null && type compgen &>/dev/null; then
             cut -f 3 -d " " | \
             tr "\\n" " " | \
             tr -s " " ) 2>/dev/null
+        ( ${1} --no-ansi --format=txt list | \
+            awk "/Available commands:/{f=1;next} f" | \
+            grep -E "\\[.*\\]" | \
+            cut -f 2 -d "[" | \
+            cut -f1 -d "]" |  \
+            tr "|" " " | \
+            tr "\\n" " " | \
+            tr -s " " ) 2>/dev/null
     }
 
     _composer_options()
