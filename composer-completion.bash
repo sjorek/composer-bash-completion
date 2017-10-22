@@ -135,21 +135,23 @@ if type complete &>/dev/null && type compgen &>/dev/null; then
                 fi
                 ;;
 
-            archive|depends|outdated|remove|show|suggests|update|upgrade)
+            archive|depends|info|outdated|prohibits|remove|show|suggests|update|upgrade|why|why-not)
                 if [ $currentIsOption == 0 ] ; then
                     if [ "${current}" = "" ] ; then
                         commands=$(_composer_show "${composer}" "${current}")
-                    elif [[ "${current}" =~ ^[a-zA-Z0-9_-]*$ ]] ; then
+                    elif [[ "${current}" =~ ^[a-zA-Z0-9\/_-]*$ ]] ; then
                         commands=$(_composer_show "${composer}" "${current}*")
                     fi
                 fi
                 ;;
 
-            browse|info|install|prohibits|require)
+            browse|install|require)
                 if [ $currentIsOption == 0 ] ; then
                     if [ "${current}" = "" ] ; then
                         commands=$(_composer_show "${composer}" "${current}")
-                    elif [[ "${current}" =~ ^[a-zA-Z0-9_-]*$ ]] ; then
+                    elif [[ "${current}" =~ ^[a-zA-Z0-9\/_-]{1,2}$ ]] ; then
+                        commands=$(_composer_show "${composer}" "${current}*")
+                    elif [[ "${current}" =~ ^[a-zA-Z0-9\/_-]{3,}$ ]] ; then
                         commands=$(_composer_search "${composer}" "${current}")
                     fi
                 fi
