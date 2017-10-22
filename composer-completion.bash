@@ -18,13 +18,6 @@
 
 if type complete &>/dev/null && type compgen &>/dev/null; then
 
-    _composer_search()
-    {
-        # ( ${1} --no-ansi -nN search "${2}" | \
-        #     grep -E "^[a-zA-Z0-9_-]+\/${2}[a-zA-Z0-9_-]*$" ) 2>/dev/null
-        ${1} --no-ansi -nN search ${2} 2>/dev/null
-    }
-
     _composer_commands()
     {
         ( ${1} --no-ansi --format=txt list | \
@@ -75,6 +68,13 @@ if type complete &>/dev/null && type compgen &>/dev/null; then
     {
         # ( ${1} --no-ansi --format=text --direct -N show "${2}" ) 2>/dev/null
         ( ${1} --no-ansi --format=text -N show ${2} ) 2>/dev/null
+    }
+
+    _composer_search()
+    {
+        # ( ${1} --no-ansi -nN search "${2}" | \
+        #     grep -E "^[a-zA-Z0-9_-]+\/${2}[a-zA-Z0-9_-]*$" ) 2>/dev/null
+        ${1} --no-ansi -nN search ${2} 2>/dev/null
     }
 
     _composer()
