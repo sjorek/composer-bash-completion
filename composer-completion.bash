@@ -20,48 +20,96 @@ if type complete &>/dev/null && type compgen &>/dev/null; then
 
     _composer_commands()
     {
-        ( ${1} --no-ansi --format=txt list | \
-            awk "/Available commands:/{f=1;next} f" | \
-            cut -f 3 -d " " | \
-            tr "\\n" " " | \
-            tr -s " " ) 2>/dev/null
-        ( ${1} --no-ansi --format=txt list | \
-            awk "/Available commands:/{f=1;next} f" | \
-            grep -E "\\[.*\\]" | \
-            cut -f 2 -d "[" | \
-            cut -f1 -d "]" |  \
-            tr "|" " " | \
-            tr "\\n" " " | \
-            tr -s " " ) 2>/dev/null
+        if declare -p _COMPOSER_LOCAL_COMMANDS >/dev/null 2>&1 && \
+           declare -p _COMPOSER_GLOBAL_COMMANDS >/dev/null 2>&1
+        then
+            if [[ "${1}" =~ global ]] ; then
+                echo "${_COMPOSER_GLOBAL_COMMANDS}"
+            else
+                echo "${_COMPOSER_LOCAL_COMMANDS}"
+            fi
+        else
+            ( ${1} --no-ansi --format=txt list | \
+                awk "/Available commands:/{f=1;next} f" | \
+                cut -f 3 -d " " | \
+                tr "\\n" " " | \
+                tr -s " " ) 2>/dev/null
+            ( ${1} --no-ansi --format=txt list | \
+                awk "/Available commands:/{f=1;next} f" | \
+                grep -E "\\[.*\\]" | \
+                cut -f 2 -d "[" | \
+                cut -f1 -d "]" |  \
+                tr "|" "\\n" | \
+                tr "\\n" " " | \
+                tr -s " " ) 2>/dev/null
+        fi
     }
 
     _composer_options()
     {
-        ( ${1} --no-ansi --format=txt help ${2} | \
-            awk "/Options:/{f=1;next} /Help:/{f=0} f" | \
-            grep -o -E "(\-\-[a-z0-9=-]+|-[a-z0-9\\|]+)" | \
-            sed -e "s#|# -#g" | \
-            tr "\\n" " " | \
-            tr -s " " ) 2>/dev/null
+        local cmd
+
+        if [ "${2}" = "" ] ; then
+            cmd="_global"
+        else
+            cmd=$( echo -n "${2}" | tr ":" "_" )
+        fi
+
+        if [[ "${1}" =~ global ]] && declare -p _COMPOSER_GLOBAL_OPTIONS >/dev/null 2>&1 && \
+           [[ "${!_COMPOSER_GLOBAL_OPTIONS[@]}" =~ (^| )$cmd( |$) ]]
+        then
+            echo "${_COMPOSER_GLOBAL_OPTIONS[$cmd]}"
+        elif [[ ! "${1}" =~ global ]] && declare -p _COMPOSER_LOCAL_OPTIONS >/dev/null 2>&1 && \
+             [[ "${!_COMPOSER_LOCAL_OPTIONS[@]}" =~ (^| )$cmd( |$) ]]
+        then
+            echo "${_COMPOSER_LOCAL_OPTIONS[$cmd]}"
+        else
+            ( ${1} --no-ansi --format=txt help ${2} | \
+                awk "/Options:/{f=1;next} /Help:/{f=0} f" | \
+                grep -o -E " (\-\-[a-z0-9=-]+|-[a-z0-9\\|]+)" | \
+                sed -e "s#|# -#g" | \
+                tr "\\n" " " | \
+                tr -s " " ) 2>/dev/null
+        fi
     }
 
     _composer_settings()
     {
-        ( ${1} --no-ansi global config -l | \
-            grep -E "^\\[" | \
-            cut -f 2 -d "[" | \
-            cut -f 1 -d "]" ) 2>/dev/null
-        ( ${1} --no-ansi config -l | \
-            grep -E "^\\[" | \
-            cut -f 2 -d "[" | \
-            cut -f 1 -d "]" ) 2>/dev/null
+        if declare -p _COMPOSER_LOCAL_SETTINGS >/dev/null 2>&1 && \
+           declare -p _COMPOSER_GLOBAL_SETTINGS >/dev/null 2>&1
+        then
+            if [[ "${1}" =~ global ]] ; then
+                echo "${_COMPOSER_GLOBAL_SETTINGS}"
+            else
+                echo "${_COMPOSER_LOCAL_SETTINGS}"
+            fi
+        else
+            ( ${1} --no-ansi global config -l | \
+                grep -E "^\\[" | \
+                cut -f 2 -d "[" | \
+                cut -f 1 -d "]" ) 2>/dev/null
+            ( ${1} --no-ansi config -l | \
+                grep -E "^\\[" | \
+                cut -f 2 -d "[" | \
+                cut -f 1 -d "]" ) 2>/dev/null
+        fi
     }
 
     _composer_scripts()
     {
-        ( ${1} --no-ansi run-script -l | \
-            tr "\\n" " " | \
-            tr -s " ") 2>/dev/null
+        if declare -p _COMPOSER_LOCAL_SCRIPTS >/dev/null 2>&1 && \
+           declare -p _COMPOSER_GLOBAL_SCRIPTS >/dev/null 2>&1
+        then
+            if [[ "${1}" =~ global ]] ; then
+                echo "${_COMPOSER_GLOBAL_SCRIPTS}"
+            else
+                echo "${_COMPOSER_LOCAL_SCRIPTS}"
+            fi
+        else
+            ( ${1} --no-ansi run-script -l | \
+                tr "\\n" " " | \
+                tr -s " ") 2>/dev/null
+        fi
     }
 
     _composer_show()
@@ -75,6 +123,74 @@ if type complete &>/dev/null && type compgen &>/dev/null; then
         # ( ${1} --no-ansi -nN search "${2}" | \
         #     grep -E "^[a-zA-Z0-9_-]+\/${2}[a-zA-Z0-9_-]*$" ) 2>/dev/null
         ${1} --no-ansi -nN search ${2} 2>/dev/null
+    }
+
+    _composer_cache_completion()
+    {
+        local cmd key
+        if [ "${1}" = "" ] ; then
+            echo "Missing name of composer executable as first argument"
+        else
+            _composer_uncache_completion
+
+            echo -n "- cache composer's local command completion: "
+            _COMPOSER_LOCAL_COMMANDS=$(_composer_commands ${1})
+            echo "done."
+
+            echo -n "- cache composer's local options completion: "
+            declare -g -A _COMPOSER_LOCAL_OPTIONS
+            _COMPOSER_LOCAL_OPTIONS[_global]=$(_composer_options ${1})
+            for cmd in ${_COMPOSER_LOCAL_COMMANDS} ; do
+                echo -n "."
+                key=$( echo -n "${cmd}" | tr ":" "_" )
+                _COMPOSER_LOCAL_OPTIONS[$key]=$(_composer_options ${1} "${cmd}")
+            done
+            echo " done."
+
+            echo -n "- cache composer's local settings completion: "
+            _COMPOSER_LOCAL_SETTINGS=$(_composer_settings ${1})
+            echo "done."
+
+            echo -n "- cache composer's local scripts completion: "
+            _COMPOSER_LOCAL_SCRIPTS=$(_composer_scripts ${1})
+            echo "done."
+
+            echo -n "- cache composer's global command completion: "
+            _COMPOSER_GLOBAL_COMMANDS=$(_composer_commands "${1} global")
+            echo "done."
+
+            echo -n "- cache composer's global options completion: "
+            declare -g -A _COMPOSER_GLOBAL_OPTIONS
+            _COMPOSER_GLOBAL_OPTIONS[_global]=$(_composer_options "${1} global")
+            for cmd in ${_COMPOSER_GLOBAL_COMMANDS} ; do
+                echo -n "."
+                key=$( echo -n "${cmd}" | tr ":" "_" )
+                _COMPOSER_GLOBAL_OPTIONS[$key]=$(_composer_options "${1} global" "${cmd}")
+            done
+            echo " done."
+
+            echo -n "- cache composer's global settings completion: "
+            _COMPOSER_GLOBAL_SETTINGS=$(_composer_settings "${1} global")
+            echo "done."
+
+            echo -n "- cache composer's global scripts completion: "
+            _COMPOSER_GLOBAL_SCRIPTS=$(_composer_scripts "${1} global")
+            echo "done."
+        fi
+    }
+
+    _composer_uncache_completion()
+    {
+        echo -n "- purge cached composer completion: "
+        unset _COMPOSER_LOCAL_COMMANDS
+        unset _COMPOSER_LOCAL_OPTIONS
+        unset _COMPOSER_LOCAL_SETTINGS
+        unset _COMPOSER_LOCAL_SCRIPTS
+        unset _COMPOSER_GLOBAL_COMMANDS
+        unset _COMPOSER_GLOBAL_OPTIONS
+        unset _COMPOSER_GLOBAL_SETTINGS
+        unset _COMPOSER_GLOBAL_SCRIPTS
+        echo "done."
     }
 
     _composer()
@@ -160,10 +276,12 @@ if type complete &>/dev/null && type compgen &>/dev/null; then
         esac
 
         # Common part
-        if [ $currentIsOption == 1 ]; then
+        if [ $currentIsOption == 1 ] ; then
             COMPREPLY=($( compgen -W "${options}" -- "${current}" ))
-        else
+        elif [ -z "${currentCommand}" ] ; then
             COMPREPLY=($( compgen -W "${commands} ${options}" -- "${current}" ))
+        else
+            COMPREPLY=($( compgen -W "${options}" -- "${current}" ))
         fi
 
         __ltrim_colon_completions "$current"
