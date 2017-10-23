@@ -23,7 +23,7 @@ even if provided by plugins.
    * a.) Either, place it in a `bash-completion.d` folder, like:
        * `/etc/bash-completion.d`
        * `/usr/local/etc/bash-completion.d`
-       * `~/bash-completion.d`
+       * `~/.bash-completion.d`
    * b.) Or, copy it somewhere (e.g. `~/.composer-completion.sh`) and put the
      following line in your `.bashrc`:
 
