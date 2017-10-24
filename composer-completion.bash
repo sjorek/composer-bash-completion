@@ -195,15 +195,34 @@ if type complete &>/dev/null && type compgen &>/dev/null; then
 
     _composer()
     {
-        local composer current options commands index
+        local composer cur prev options commands index
         local commandCandidate commandList currentCommand currentIsOption
 
         COMPREPLY=()
         composer="${COMP_WORDS[0]}"
         if type _get_comp_words_by_ref &>/dev/null; then
-          _get_comp_words_by_ref -n = -n @ -n : -c current
+            _get_comp_words_by_ref -n @ -n = -n : -c cur
+            _get_comp_words_by_ref -n @ -n = -n : -p prev
         else
-          current="${COMP_WORDS[COMP_CWORD]}"
+          cur="${COMP_WORDS[COMP_CWORD]}"
+          prev="${COMP_WORDS[COMP_CWORD-1]}"
+        fi
+
+        if [ "${prev}" == "=" ]; then
+            prev="${COMP_WORDS[COMP_CWORD-2]}"
+        fi
+
+        if [[ ${prev} == -* ]]; then
+            if [ "${cur}" == "=" ]; then
+                cur=""
+            fi
+            case "${prev}" in
+                -d|--working-dir*)
+                    _filedir -d 2>/dev/null || COMPREPLY=($(compgen -d -- "${cur}"))
+                    __ltrim_colon_completions "${cur}"
+                    return 0
+                    ;;
+            esac
         fi
 
         commandList=$(_composer_commands "${composer}")
@@ -232,7 +251,7 @@ if type complete &>/dev/null && type compgen &>/dev/null; then
 
         commands="${commandList}"
         options=$(_composer_options "${composer}" "${currentCommand}")
-        if [[ ${current} == -* ]]; then
+        if [[ ${cur} == -* ]]; then
             currentIsOption=1
         else
             currentIsOption=0
@@ -253,22 +272,22 @@ if type complete &>/dev/null && type compgen &>/dev/null; then
 
             archive|depends|info|outdated|prohibits|remove|show|suggests|update|upgrade|why|why-not)
                 if [ $currentIsOption == 0 ] ; then
-                    if [ "${current}" = "" ] ; then
-                        commands=$(_composer_show "${composer}" "${current}")
-                    elif [[ "${current}" =~ ^[a-zA-Z0-9\/_-]*$ ]] ; then
-                        commands=$(_composer_show "${composer}" "${current}*")
+                    if [ "${cur}" = "" ] ; then
+                        commands=$(_composer_show "${composer}" "${cur}")
+                    elif [[ "${cur}" =~ ^[a-zA-Z0-9\/_-]*$ ]] ; then
+                        commands=$(_composer_show "${composer}" "${cur}*")
                     fi
                 fi
                 ;;
 
             browse|install|require)
                 if [ $currentIsOption == 0 ] ; then
-                    if [ "${current}" = "" ] ; then
-                        commands=$(_composer_show "${composer}" "${current}")
-                    elif [[ "${current}" =~ ^[a-zA-Z0-9\/_-]{1,2}$ ]] ; then
-                        commands=$(_composer_show "${composer}" "${current}*")
-                    elif [[ "${current}" =~ ^[a-zA-Z0-9\/_-]{3,}$ ]] ; then
-                        commands=$(_composer_search "${composer}" "${current}")
+                    if [ "${cur}" = "" ] ; then
+                        commands=$(_composer_show "${composer}" "${cur}")
+                    elif [[ "${cur}" =~ ^[a-zA-Z0-9\/_-]{1,2}$ ]] ; then
+                        commands=$(_composer_show "${composer}" "${cur}*")
+                    elif [[ "${cur}" =~ ^[a-zA-Z0-9\/_-]{3,}$ ]] ; then
+                        commands=$(_composer_search "${composer}" "${cur}")
                     fi
                 fi
                 ;;
@@ -277,14 +296,14 @@ if type complete &>/dev/null && type compgen &>/dev/null; then
 
         # Common part
         if [ $currentIsOption == 1 ] ; then
-            COMPREPLY=($( compgen -W "${options}" -- "${current}" ))
+            COMPREPLY=($( compgen -W "${options}" -- "${cur}" ))
         elif [ -z "${currentCommand}" ] || [ "${currentCommand}" = "help" ] ; then
-            COMPREPLY=($( compgen -W "${commands} ${options}" -- "${current}" ))
+            COMPREPLY=($( compgen -W "${commands} ${options}" -- "${cur}" ))
         else
-            COMPREPLY=($( compgen -W "${options}" -- "${current}" ))
+            COMPREPLY=($( compgen -W "${options}" -- "${cur}" ))
         fi
 
-        __ltrim_colon_completions "$current"
+        __ltrim_colon_completions "${cur}"
 
         return 0
     }
