@@ -278,7 +278,7 @@ if type complete &>/dev/null && type compgen &>/dev/null; then
         # Common part
         if [ $currentIsOption == 1 ] ; then
             COMPREPLY=($( compgen -W "${options}" -- "${current}" ))
-        elif [ -z "${currentCommand}" ] ; then
+        elif [ -z "${currentCommand}" ] || [ "${currentCommand}" = "help" ] ; then
             COMPREPLY=($( compgen -W "${commands} ${options}" -- "${current}" ))
         else
             COMPREPLY=($( compgen -W "${options}" -- "${current}" ))
