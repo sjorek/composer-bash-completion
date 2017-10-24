@@ -217,8 +217,13 @@ if type complete &>/dev/null && type compgen &>/dev/null; then
                 cur=""
             fi
             case "${prev}" in
-                -d|--working-dir*)
+                -d|--*-dir)
                     _filedir -d 2>/dev/null || COMPREPLY=($(compgen -d -- "${cur}"))
+                    __ltrim_colon_completions "${cur}"
+                    return 0
+                    ;;
+                --file|--*-file)
+                    _filedir 2>/dev/null || COMPREPLY=($(compgen -f -- "${cur}"))
                     __ltrim_colon_completions "${cur}"
                     return 0
                     ;;
