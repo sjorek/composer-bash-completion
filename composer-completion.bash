@@ -302,12 +302,10 @@ if type complete &>/dev/null && type compgen &>/dev/null; then
         # Common part
         if [ $currentIsOption == 1 ] ; then
             COMPREPLY=($( compgen -W "${options}" -- "${cur}" ))
-        elif [ -z "${currentCommand}" ] || [ "${currentCommand}" = "help" ] ; then
-            COMPREPLY=($( compgen -W "${commands} ${options}" -- "${cur}" ))
         elif [ ! -z "${cur}" ] && [[ "${commandList}" =~ (^| )${cur} ]]; then
             COMPREPLY=($( compgen -W "${commands}" -- "${cur}" ))
         else
-            COMPREPLY=($( compgen -W "${options}" -- "${cur}" ))
+            COMPREPLY=($( compgen -W "${commands} ${options}" -- "${cur}" ))
         fi
 
         __ltrim_colon_completions "${cur}"
