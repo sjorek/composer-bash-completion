@@ -273,7 +273,7 @@ else
         fi
 
         echo ''
-        echo '"composer-bash-completion" requires bash version >= 3.2 and'
+        echo '"composer-bash-completion" requires bash version >= 4.x and'
         echo 'depends on a number of utility functions from "bash-completion".'
         echo ''
         if [ "$(uname -s 2>/dev/null)" = 'Darwin' ] ; then
