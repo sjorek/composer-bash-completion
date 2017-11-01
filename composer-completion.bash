@@ -252,7 +252,7 @@ elif type -t _get_comp_words_by_ref >/dev/null ; then
 else
 
     echo 'composer-bash-completion not loaded' >&2
-    echo 'It requires bash version >= 3.2 and bash-completion.' >&2
+    echo 'It requires bash version >= 4.x and bash-completion.' >&2
     echo 'For more information, type:' >&2
     echo '' >&2
     echo '    composer-completion-reload' >&2
