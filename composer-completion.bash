@@ -17,7 +17,7 @@
 #
 
 #COMPOSER_COMPLETION_GENERATOR=
-if [ -z "${COMPOSER_COMPLETION_GENERATOR}" ] && [ -r "${BASH_SOURCE%.bash}.php" ] ; then
+if [ -z "${COMPOSER_COMPLETION_GENERATOR}" ] && [ -e "${BASH_SOURCE%.bash}.php" ] ; then
 
     COMPOSER_COMPLETION_GENERATOR="$(realpath ${BASH_SOURCE%.bash}.php)"
 
