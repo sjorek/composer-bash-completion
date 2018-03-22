@@ -22,14 +22,14 @@ COMPOSER_COMPLETION_REGISTER=${COMPOSER_COMPLETION_REGISTER:-"composer composer.
 COMPOSER_COMPLETION_DETECTION=${COMPOSER_COMPLETION_DETECTION:-false}
 
 if [ -z "${COMPOSER_COMPLETION_PHP}" ] && [ -x /usr/bin/env ] && /usr/bin/env php --version >/dev/null 2>&1 ; then
-
     COMPOSER_COMPLETION_PHP=$(php -r 'if(defined("PHP_BINARY")){echo PHP_BINARY;}else{echo "php";}')
+fi
 
-elif [ -z "${COMPOSER_COMPLETION_PHP_SCRIPT}" ] && [ -e "${BASH_SOURCE%.bash}.php" ] ; then
-
+if [ -z "${COMPOSER_COMPLETION_PHP_SCRIPT}" ] && [ -e "${BASH_SOURCE%.bash}.php" ] ; then
     COMPOSER_COMPLETION_PHP_SCRIPT="$(realpath ${BASH_SOURCE%.bash}.php)"
+fi
 
-elif [ -z "${COMPOSER_COMPLETION_PHP}" ] || [ -z "${COMPOSER_COMPLETION_PHP_SCRIPT}" ] ; then
+if [ -z "${COMPOSER_COMPLETION_PHP}" ] || [ -z "${COMPOSER_COMPLETION_PHP_SCRIPT}" ] ; then
 
     echo '"composer-bash-completion" not loaded' >&2
     if [ -z "${COMPOSER_COMPLETION_PHP}" ] ; then
