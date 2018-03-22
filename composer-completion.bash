@@ -252,19 +252,23 @@ elif type -t _get_comp_words_by_ref >/dev/null ; then
         local composer commands completion
         commands="${1:-}"
         completion=${2:-_composer_completion}
+        if [ -z "${commands}" ] ; then
+            echo "Missing composer commands to register for bash-completion." >&2
+            echo "Usage: composer-completion-register COMMANDS [FUNCTION]." >&2
+            return 1
+        fi
         if compgen -A function | grep -q -E "^${completion}$" ; then
-            if [ -z "${commands}" ] ; then
-                commands=$(_composer_completion_detect_composer)
-            fi
             for composer in ${commands} ; do
                 if [ "${composer}" = "composer-completion-register" ] ; then
                     continue
                 fi
                 complete -o bashdefault -o nospace -F ${completion} "${composer}"
             done
+            return 0
         else
-            echo "Completion function '${completion}' not found!" >&2
-            echo "Skipping registration of completion function for '${commands}'." >&2
+            echo "Function '${completion}' not found!" >&2
+            echo "Failed to register composer-bash-completion for '${commands}'." >&2
+            return 1
         fi
     }
 
