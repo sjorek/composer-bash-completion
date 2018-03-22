@@ -16,23 +16,37 @@
 # Need help? [RTFM](https://sjorek.github.io/composer-bash-completion)!
 #
 
-#COMPOSER_COMPLETION_GENERATOR=
-if [ -z "${COMPOSER_COMPLETION_GENERATOR}" ] && [ -e "${BASH_SOURCE%.bash}.php" ] ; then
+#COMPOSER_COMPLETION_PHP=
+#COMPOSER_COMPLETION_PHP_SCRIPT=
+COMPOSER_COMPLETION_REGISTER=${COMPOSER_COMPLETION_REGISTER:-"composer composer.phar"}
+COMPOSER_COMPLETION_DETECTION=${COMPOSER_COMPLETION_DETECTION:-false}
 
-    COMPOSER_COMPLETION_GENERATOR="$(realpath ${BASH_SOURCE%.bash}.php)"
+if [ -z "${COMPOSER_COMPLETION_PHP}" ] && [ -x php ] && php --version >/dev/null 2>&1 ; then
 
-elif [ -z "${COMPOSER_COMPLETION_GENERATOR}" ] ; then
+    COMPOSER_COMPLETION_PHP=$(php -r 'if(defined("PHP_BINARY")){echo PHP_BINARY;}else{echo "php";}')
+
+elif [ -z "${COMPOSER_COMPLETION_PHP_SCRIPT}" ] && [ -e "${BASH_SOURCE%.bash}.php" ] ; then
+
+    COMPOSER_COMPLETION_PHP_SCRIPT="$(realpath ${BASH_SOURCE%.bash}.php)"
+
+elif [ -z "${COMPOSER_COMPLETION_PHP}" ] || [ -z "${COMPOSER_COMPLETION_PHP_SCRIPT}" ] ; then
 
     echo '"composer-bash-completion" not loaded' >&2
-    echo 'A valid completion generator is missing.' >&2
-    echo 'Please set COMPOSER_COMPLETION_GENERATOR accordingly.' >&2
+    if [ -z "${COMPOSER_COMPLETION_PHP}" ] ; then
+        echo 'Missing php interpreter.' >&2
+        echo 'Please set COMPOSER_COMPLETION_PHP accordingly.' >&2
+    fi
+    if [ -z "${COMPOSER_COMPLETION_PHP_SCRIPT}" ] ; then
+        echo 'The composer-completion.php script is missing.' >&2
+        echo 'Please set COMPOSER_COMPLETION_PHP_SCRIPT accordingly.' >&2
+    fi
     echo 'To reload the "composer-bash-completion", type: ' >&2
     echo '' >&2
     echo '    composer-completion-reload' >&2
 
     composer-completion-reload()
     {
-        if [ -n "${COMPOSER_COMPLETION_GENERATOR}" ] ; then
+        if [ -n "${COMPOSER_COMPLETION_PHP_SCRIPT}" ] ; then
             echo '"composer-bash-completion" generator-file configuration detected!'
             if [ -f "$BASH_SOURCE" ] && source "$BASH_SOURCE" ; then
                 unset -f composer-completion-reload
@@ -45,7 +59,7 @@ elif [ -z "${COMPOSER_COMPLETION_GENERATOR}" ] ; then
             fi
         else
             echo 'A valid completion generator is missing.' >&2
-            echo 'Please set COMPOSER_COMPLETION_GENERATOR accordingly.' >&2
+            echo 'Please set COMPOSER_COMPLETION_PHP_SCRIPT accordingly.' >&2
             return 1
         fi
     }
@@ -99,7 +113,7 @@ elif type -t _get_comp_words_by_ref >/dev/null ; then
 
     _composer_completion()
     {
-        local cur prev words
+        local cur prev words cword
 
         COMPREPLY=()
 
@@ -143,7 +157,9 @@ elif type -t _get_comp_words_by_ref >/dev/null ; then
         # local commands scripts proxies required multiple
 
         if ! source <(
-            php ${COMPOSER_COMPLETION_GENERATOR} "${cur}" "${prev}" ${is_option} ${is_assignment} ${words[@]}
+            ${COMPOSER_COMPLETION_PHP} \
+                ${COMPOSER_COMPLETION_PHP_SCRIPT} \
+                "${cur}" "${prev}" ${is_option} ${is_assignment} ${words[@]}
         ) ; then
             return 1
         fi
@@ -224,7 +240,7 @@ elif type -t _get_comp_words_by_ref >/dev/null ; then
     {
         local composer
         for composer in $( compgen -ca | grep -E '^composer' ) ; do
-            if compgen -A function -A builtin | grep -q -E "^${composer}$" ; then
+            if [ "${composer}" = "composer-completion-register" ] ; then
                 continue
             fi
             echo "${composer}"
@@ -233,21 +249,34 @@ elif type -t _get_comp_words_by_ref >/dev/null ; then
 
     composer-completion-register()
     {
-        local composer commands
+        local composer commands completion
         commands="${1:-}"
-        if [ -z "${commands}" ] ; then
-            commands=$(_composer_completion_detect_composer)
-        fi
-        for composer in ${commands} ; do
-            if compgen -A function | grep -q -E "^${composer}$" ; then
-                echo "Skipping registration of function '${composer}' for composer-bash-completion." >&2
-                continue
+        completion=${2:-_composer_completion}
+        if compgen -A function | grep -q -E "^${completion}$" ; then
+            if [ -z "${commands}" ] ; then
+                commands=$(_composer_completion_detect_composer)
             fi
-            complete -o bashdefault -o nospace -F _composer_completion "${composer}"
-        done
+            for composer in ${commands} ; do
+                if [ "${composer}" = "composer-completion-register" ] ; then
+                    continue
+                fi
+                complete -o bashdefault -o nospace -F ${completion} "${composer}"
+            done
+        else
+            echo "Completion function '${completion}' not found!" >&2
+            echo "Skipping registration of completion function for '${commands}'." >&2
+        fi
     }
 
-    composer-completion-register "composer composer.phar $(_composer_completion_detect_composer)"
+    if [[ $COMPOSER_COMPLETION_DETECTION = true ]]  ; then
+        COMPOSER_COMPLETION_REGISTER="$COMPOSER_COMPLETION_REGISTER $(_composer_completion_detect_composer)"
+    fi
+    unset COMPOSER_COMPLETION_DETECTION
+
+    if [ -n "$COMPOSER_COMPLETION_REGISTER" ]  ; then
+        composer-completion-register "$COMPOSER_COMPLETION_REGISTER"
+    fi
+    unset COMPOSER_COMPLETION_REGISTER
 
 else
 
