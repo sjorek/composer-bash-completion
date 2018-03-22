@@ -21,7 +21,7 @@
 COMPOSER_COMPLETION_REGISTER=${COMPOSER_COMPLETION_REGISTER:-"composer composer.phar"}
 COMPOSER_COMPLETION_DETECTION=${COMPOSER_COMPLETION_DETECTION:-false}
 
-if [ -z "${COMPOSER_COMPLETION_PHP}" ] && [ -x php ] && php --version >/dev/null 2>&1 ; then
+if [ -z "${COMPOSER_COMPLETION_PHP}" ] && [ -x /usr/bin/env ] && /usr/bin/env php --version >/dev/null 2>&1 ; then
 
     COMPOSER_COMPLETION_PHP=$(php -r 'if(defined("PHP_BINARY")){echo PHP_BINARY;}else{echo "php";}')
 
