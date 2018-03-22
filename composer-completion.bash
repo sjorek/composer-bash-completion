@@ -284,7 +284,7 @@ else
     echo 'It requires bash version >= 4.x and bash-completion.' >&2
     echo 'For more information, type:' >&2
     echo '' >&2
-    echo '    composer-completion-reload' >&2
+    echo '    composer-completion-help' >&2
 
     composer-completion-help()
     {
