@@ -22,7 +22,7 @@ COMPOSER_COMPLETION_REGISTER=${COMPOSER_COMPLETION_REGISTER:-"composer composer.
 COMPOSER_COMPLETION_DETECTION=${COMPOSER_COMPLETION_DETECTION:-false}
 
 if [ -z "${COMPOSER_COMPLETION_PHP}" ] && [ -x /usr/bin/env ] && /usr/bin/env php --version >/dev/null 2>&1 ; then
-    COMPOSER_COMPLETION_PHP=$(php -r 'if(defined("PHP_BINARY")){echo PHP_BINARY;}else{echo "php";}')
+    COMPOSER_COMPLETION_PHP=$(/usr/bin/env php -r 'if(defined("PHP_BINARY")){echo PHP_BINARY;}else{echo "php";}')
 fi
 
 if [ -z "${COMPOSER_COMPLETION_PHP_SCRIPT}" ] && [ -e "${BASH_SOURCE%.bash}.php" ] ; then
@@ -31,23 +31,10 @@ fi
 
 if [ -z "${COMPOSER_COMPLETION_PHP}" ] || [ -z "${COMPOSER_COMPLETION_PHP_SCRIPT}" ] ; then
 
-    echo '"composer-bash-completion" not loaded' >&2
-    if [ -z "${COMPOSER_COMPLETION_PHP}" ] ; then
-        echo 'Missing php interpreter.' >&2
-        echo 'Please set COMPOSER_COMPLETION_PHP accordingly.' >&2
-    fi
-    if [ -z "${COMPOSER_COMPLETION_PHP_SCRIPT}" ] ; then
-        echo 'The composer-completion.php script is missing.' >&2
-        echo 'Please set COMPOSER_COMPLETION_PHP_SCRIPT accordingly.' >&2
-    fi
-    echo 'To reload the "composer-bash-completion", type: ' >&2
-    echo '' >&2
-    echo '    composer-completion-reload' >&2
-
     composer-completion-reload()
     {
-        if [ -n "${COMPOSER_COMPLETION_PHP_SCRIPT}" ] ; then
-            echo '"composer-bash-completion" generator-file configuration detected!'
+        if [ -n "${COMPOSER_COMPLETION_PHP}" ] && [ -n "${COMPOSER_COMPLETION_PHP_SCRIPT}" ] ; then
+            echo 'php interpreter composer-completion.php script set.'
             if [ -f "$BASH_SOURCE" ] && source "$BASH_SOURCE" ; then
                 unset -f composer-completion-reload
                 echo '"composer-bash-completion" has been reloaded.'
@@ -58,11 +45,26 @@ if [ -z "${COMPOSER_COMPLETION_PHP}" ] || [ -z "${COMPOSER_COMPLETION_PHP_SCRIPT
                 return 1
             fi
         else
-            echo 'A valid completion generator is missing.' >&2
-            echo 'Please set COMPOSER_COMPLETION_PHP_SCRIPT accordingly.' >&2
+            echo '"composer-bash-completion" not loaded.' >&2
+            echo '' >&2
+            if [ -z "${COMPOSER_COMPLETION_PHP}" ] ; then
+                echo 'Missing php interpreter.' >&2
+                echo 'Please set COMPOSER_COMPLETION_PHP accordingly.' >&2
+            fi
+            if [ -z "${COMPOSER_COMPLETION_PHP_SCRIPT}" ] ; then
+                echo 'The composer-completion.php script is missing.' >&2
+                echo 'Please set COMPOSER_COMPLETION_PHP_SCRIPT accordingly.' >&2
+            fi
+            echo '' >&2
+            echo 'To reload the "composer-bash-completion", type: ' >&2
+            echo '' >&2
+            echo '    composer-completion-reload' >&2
+
             return 1
         fi
     }
+
+    composer-completion-reload
 
 elif type -t _get_comp_words_by_ref >/dev/null ; then
 
