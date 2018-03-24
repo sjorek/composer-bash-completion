@@ -56,7 +56,7 @@ Look at the [contribution guidelines](CONTRIBUTING.md)
 
 There is a [composer-plugin](https://sjorek.github.io/composer-virtual-environment-plugin/)
 complementing the bash-completion. And - once again - if you're using [MacPorts](http://macports.org),
-take a look at my [MacPorts-PHP](https://sjorek.github.io/MacPorts-PHP/)
+take a look at my [MacPorts-PHP](https://sjorek.github.io/macports-php/)
 repository.
 
 Cheers!
