@@ -29,12 +29,12 @@ repository. In all other cases:
    * copy it somewhere (e.g. `~/.composer-completion.php`) and put the
      following line in your `~/.bash_profile`:
 
-         `export COMPOSER_COMPLETION_PHP_SCRIPT=~/.composer-completion.php`
+         export COMPOSER_COMPLETION_PHP_SCRIPT=~/.composer-completion.php
 
    * you can also nail down the php interpreter to use by adding the
      following line in your `~/.bash_profile`:
 
-         `export COMPOSER_COMPLETION_PHP=/path/to/your/php`
+         export COMPOSER_COMPLETION_PHP=/path/to/your/php
 
 3. Install `composer-completion.bash` file:
    * a.) Either, place it in a `bash-completion.d` folder, like:
@@ -44,7 +44,7 @@ repository. In all other cases:
    * b.) Or, copy it somewhere (e.g. `~/.composer-completion.bash`) and put the
      following line in your `~/.bash_completion`:
 
-         `source ~/.composer-completion.bash`
+         source ~/.composer-completion.bash
 
 
 ## Contributing
