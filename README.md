@@ -16,7 +16,7 @@ repository. In all other cases:
 1. Ensure you installed:
    * `bash` (version 4.x or above)
    * `bash-completion` (version 2.x or above)
-   * additionally you need to have the follwoing tools in `PATH`:
+   * additionally you need to have the following tools in `PATH`:
        * `php` (version 5.5 or above)
        * `grep`
        * `sed`
@@ -29,7 +29,12 @@ repository. In all other cases:
    * copy it somewhere (e.g. `~/.composer-completion.php`) and put the
      following line in your `~/.bash_profile`:
 
-         `export COMPOSER_COMPLETION_GENERATOR=~/.composer-completion.php`
+         `export COMPOSER_COMPLETION_PHP_SCRIPT=~/.composer-completion.php`
+
+   * you can also nail down the php interpreter to use by adding the
+     following line in your `~/.bash_profile`:
+
+         `export COMPOSER_COMPLETION_PHP=/path/to/your/php`
 
 3. Install `composer-completion.bash` file:
    * a.) Either, place it in a `bash-completion.d` folder, like:
