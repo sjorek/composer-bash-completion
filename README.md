@@ -10,7 +10,7 @@ even if provided by plugins.
 ## Installation
 
 If you're using [MacPorts](https://www.macports.org) then you should
-take a look at my [MacPorts-PHP](https://sjorek.github.io/MacPorts-PHP)
+take a look at my [MacPorts-PHP](https://sjorek.github.io/macports-php)
 repository. In all other cases:
 
 1. Ensure you installed:
