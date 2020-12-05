@@ -3,7 +3,7 @@
 # composer-bash-completion
 # ========================
 #
-# Copyright (c) 2017 [Stephan Jorek](mailto:stephan.jorek@gmail.com)
+# Copyright (c) 2017-2020 [Stephan Jorek](mailto:stephan.jorek@gmail.com)
 #
 # Distributed under the 3-Clause BSD license
 # https://opensource.org/licenses/BSD-3-Clause
@@ -22,7 +22,7 @@ COMPOSER_COMPLETION_REGISTER=${COMPOSER_COMPLETION_REGISTER:-"composer composer.
 COMPOSER_COMPLETION_DETECTION=${COMPOSER_COMPLETION_DETECTION:-false}
 
 if [ -z "${COMPOSER_COMPLETION_PHP}" ] && [ -x /usr/bin/env ] && /usr/bin/env php --version >/dev/null 2>&1 ; then
-    COMPOSER_COMPLETION_PHP=$(/usr/bin/env php -r 'if(defined("PHP_BINARY")){echo PHP_BINARY;}else{echo "php";}')
+    COMPOSER_COMPLETION_PHP=$(/usr/bin/env php -r 'echo defined("PHP_BINARY") ? PHP_BINARY : "php";')
 fi
 
 if [ -z "${COMPOSER_COMPLETION_PHP_SCRIPT}" ] && [ -e "${BASH_SOURCE%.bash}.php" ] ; then
