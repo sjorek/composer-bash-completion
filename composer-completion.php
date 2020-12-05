@@ -3,7 +3,7 @@
  * composer-bash-completion
  * ========================
  *
- * Copyright (c) 2017 [Stephan Jorek](mailto:stephan.jorek@gmail.com)
+ * Copyright (c) 2017-2020 [Stephan Jorek](mailto:stephan.jorek@gmail.com)
  *
  * Distributed under the 3-Clause BSD license
  * https://opensource.org/licenses/BSD-3-Clause
@@ -32,6 +32,8 @@ class Generator
     const EXIT_CODE_FAILED_TO_FETCH_JSON = 2;
     const EXIT_CODE_FAILED_TO_PARSE_JSON = 3;
     const EXIT_CODE_INVALID_JSON_FORMAT = 4;
+    const EXIT_UNKNOWN_ERROR = 254;
+    const EXIT_UNKNOWN_EXCEPTION = 255;
 
     /**
      * @throws \RuntimeException
@@ -60,9 +62,9 @@ class Generator
             $generator = new Generator($current, $previous, $compwords, $isOption, $isAssigment);
             $exitCode = $generator->process();
         } catch (\Exception $e) {
-            $exitCode = $e->getCode() ?: 255;
+            $exitCode = $e->getCode() ?: self::EXIT_UNKNOWN_EXCEPTION;
         } catch (\Throwable $t) {
-            $exitCode = $t->getCode() ?: 254;
+            $exitCode = $t->getCode() ?: self::EXIT_UNKNOWN_ERROR;
         }
         return $exitCode;
     }
@@ -282,6 +284,8 @@ class Generator
             $commandName = $definition['name'];
             if ($definition['description'] === sprintf('Runs the %s script as defined in composer.json.', $commandName)) {
                 $scripts[] = $commandName;
+            } elseif(0 === strpos($definition['help'], 'The <info>run-script</info>')) {
+                $scripts[] = $commandName;
             }
             foreach ($definition['definition']['arguments'] as $argument) {
                 if ($argument['name'] === 'command-name') {
@@ -395,15 +399,20 @@ class Generator
                 if ($command === 'exec') {
                     $this->arguments = array_map(
                         function($binary) {
-                            return $binary . ' ';
+                            return substr($binary, 2) . ' ';
                         },
-                        explode(
-                            PHP_EOL,
-                            // -n -vvv ... 2>/dev/null is a hack to support
-                            // https://github.com/sjorek/composer-silent-command-plugin
-                            $this->exec(
-                                '%s config -n -vvv --no-ansi --absolute bin-dir 2>/dev/null | xargs ls -1'
-                            ) ?: ''
+                        array_filter(
+                            explode(
+                                PHP_EOL,
+                                // -n -vvv ... 2>/dev/null is a hack to support
+                                // https://github.com/sjorek/composer-silent-command-plugin
+                                $this->exec(
+                                    '%s exec -lq 2>/dev/null'
+                                ) ?: ''
+                            ),
+                            function($line) {
+                                return 0 < strlen(trim($line)) && 0 === strpos($line, '- ');
+                            }
                         )
                     );
                 }
