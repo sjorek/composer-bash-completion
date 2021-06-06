@@ -9,21 +9,24 @@ even if provided by plugins.
 
 ## Installation
 
-If you're using [MacPorts](https://www.macports.org) then you should
-take a look at my [MacPorts-PHP](https://sjorek.github.io/macports-php)
-repository. In all other cases:
+If you're using [Homebrew](https://brew.sh), you should tap my 
+[Homebrew-PHP](https://sjorek.github.io/homebrew-php/) repository.
+And if you're using [MacPorts](https://www.macports.org), you should
+use my [MacPorts-PHP](https://sjorek.github.io/macports-php) repository.
+
+Manual installation (not recommend on Mac OS, see above):
 
 1. Ensure you installed:
-   * `bash` (version 4.x or above)
-   * `bash-completion` (version 2.x or above)
+   * `bash` version ≥ 4.x, including ≥ 5.x
+   * `bash-completion` version ≥ 2.x
    * additionally you need to have the following tools in `PATH`:
-       * `php` (version 5.5 or above)
+       * `php` version ≥ 5.6, including ≥ 7.x and ≥ 8.x
        * `grep`
        * `sed`
        * `tr`
        * `sort`
        * `uniq`
-   * … and last but not least, `composer` (version 1.5 or above) of course!
+   * … and last but not least, `composer` version ≥ 1.5, including ≥ 2.x
 
 2. Install `composer-completion.php` file:
    * copy it somewhere (e.g. `~/.composer-completion.php`) and put the
@@ -54,9 +57,10 @@ Look at the [contribution guidelines](CONTRIBUTING.md)
 
 ## Want more?
 
-There is a [composer-plugin](https://sjorek.github.io/composer-virtual-environment-plugin/)
-complementing the bash-completion. And - once again - if you're using [MacPorts](http://macports.org),
-take a look at my [MacPorts-PHP](https://sjorek.github.io/macports-php/)
-repository.
+If you're using [Homebrew](https://brew.sh), take a look at my 
+[Homebrew-PHP](https://sjorek.github.io/homebrew-php/) tap.
+
+If you're using [MacPorts](https://macports.org), take a look at my 
+[MacPorts-PHP](https://sjorek.github.io/macports-php/) repository.
 
 Cheers!

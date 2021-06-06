@@ -3,7 +3,7 @@
 # composer-bash-completion
 # ========================
 #
-# Copyright (c) 2017-2020 [Stephan Jorek](mailto:stephan.jorek@gmail.com)
+# Copyright (c) 2017-2021 [Stephan Jorek](mailto:stephan.jorek@gmail.com)
 #
 # Distributed under the 3-Clause BSD license
 # https://opensource.org/licenses/BSD-3-Clause
@@ -66,7 +66,11 @@ if [ -z "${COMPOSER_COMPLETION_PHP}" ] || [ -z "${COMPOSER_COMPLETION_PHP_SCRIPT
 
     composer-completion-reload
 
-elif type -t _get_comp_words_by_ref >/dev/null ; then
+elif [ "$( type -t 'composer-completion-register' )" = "function" ] ; then
+
+  # already loaded, skipped loading twice …
+
+elif _get_comp_words_by_ref >/dev/null ; then
 
     _composer_completion_settings()
     {
@@ -161,7 +165,8 @@ elif type -t _get_comp_words_by_ref >/dev/null ; then
         if ! source <(
             ${COMPOSER_COMPLETION_PHP} \
                 ${COMPOSER_COMPLETION_PHP_SCRIPT} \
-                "${cur}" "${prev}" ${is_option} ${is_assignment} ${words[@]}
+                "${cur}" "${prev}" ${is_option} ${is_assignment} ${words[@]} \
+                2>/dev/null
         ) ; then
             return 1
         fi
@@ -204,7 +209,7 @@ elif type -t _get_comp_words_by_ref >/dev/null ; then
                         fi
                     fi
                     ;;
-                browse|install|require)
+                browse|install|require|create-project)
                     if [ $is_option = 0 ] && [ $is_assignment = 0 ] ; then
                         if [ "${cur}" = "" ] ; then
                             args=$(_composer_completion_show "${composer}")
@@ -251,7 +256,7 @@ elif type -t _get_comp_words_by_ref >/dev/null ; then
 
     composer-completion-register()
     {
-        local composer commands completion
+        local composer commands completion available
         commands="${1:-}"
         completion=${2:-_composer_completion}
         if [ -z "${commands}" ] ; then
@@ -259,7 +264,8 @@ elif type -t _get_comp_words_by_ref >/dev/null ; then
             echo "Usage: composer-completion-register COMMANDS [FUNCTION]." >&2
             return 1
         fi
-        if compgen -A function | grep -q -E "^${completion}$" ; then
+        available=$( type -t "${completion}" )
+        if [ "$available" = "function" ]; then
             for composer in ${commands} ; do
                 if [ "${composer}" = "composer-completion-register" ] ; then
                     continue
@@ -326,7 +332,7 @@ else
             if which brew &>/dev/null; then
                 echo 'To install "bash-completion" with Homebrew, type:'
                 echo ''
-                echo '    brew install bash-completion'
+                echo '    brew install bash-completion@2'
                 echo ''
                 echo 'Be sure to add it to your bash startup, as instructed.'
                 echo ''
