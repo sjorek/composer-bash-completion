@@ -69,6 +69,7 @@ if [ -z "${COMPOSER_COMPLETION_PHP}" ] || [ -z "${COMPOSER_COMPLETION_PHP_SCRIPT
 elif [ "$( type -t 'composer-completion-register' )" = "function" ] ; then
 
   # already loaded, skipped loading twice …
+  true
 
 elif [ "$( type -t '_get_comp_words_by_ref' )" = "function" ]; then
 
