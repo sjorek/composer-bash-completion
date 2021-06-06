@@ -3,7 +3,7 @@
  * composer-bash-completion
  * ========================
  *
- * Copyright (c) 2017-2020 [Stephan Jorek](mailto:stephan.jorek@gmail.com)
+ * Copyright (c) 2017-2021 [Stephan Jorek](mailto:stephan.jorek@gmail.com)
  *
  * Distributed under the 3-Clause BSD license
  * https://opensource.org/licenses/BSD-3-Clause
