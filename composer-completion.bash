@@ -70,7 +70,7 @@ elif [ "$( type -t 'composer-completion-register' )" = "function" ] ; then
 
   # already loaded, skipped loading twice …
 
-elif _get_comp_words_by_ref >/dev/null ; then
+elif [ "$( type -t '_get_comp_words_by_ref' )" = "function" ]; then
 
     _composer_completion_settings()
     {
