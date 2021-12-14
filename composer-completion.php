@@ -194,7 +194,7 @@ class Generator
 
             echo PHP_EOL;
             printf('composer=%s' . PHP_EOL, escapeshellarg($this->composer));
-            printf('cmd=%s' . PHP_EOL, escapeshellarg($this->command));
+            printf('cmd=%s' . PHP_EOL, escapeshellarg($this->command ?? ''));
             printf('args=%s' . PHP_EOL, escapeshellarg(implode(PHP_EOL, $this->arguments)));
             printf('opts=%s' . PHP_EOL, escapeshellarg(implode(PHP_EOL, $this->options)));
 //             printf('commands=%s' . PHP_EOL, escapeshellarg(implode(' ', $this->commands)));
