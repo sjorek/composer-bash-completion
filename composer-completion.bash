@@ -77,11 +77,9 @@ elif [ "$( type -t '_get_comp_words_by_ref' )" = "function" ]; then
     {
         local composer
         composer="${1}"
-        # -n -vvv ... 2>/dev/null is a hack to support
-        # https://github.com/sjorek/composer-silent-command-plugin
         (
-            ${composer} -n -vvv --no-ansi config -l ||
-            ${composer} -n -vvv --no-ansi config -l --global
+            ${composer} -n --no-ansi config -l ||
+            ${composer} -n --no-ansi config -l --global
         ) 2>/dev/null |
             grep -o -E '^\[[^]]+\]' |
             tr -d '[]' |
@@ -96,12 +94,11 @@ elif [ "$( type -t '_get_comp_words_by_ref' )" = "function" ]; then
         local composer package
         composer="${1}"
         package="${2:-}"
-        # use direct ?
-        # ${composer} -n -vvv --no-ansi --format=text --direct -N show ${package} 2>/dev/null
 
-        # -n -vvv ... 2>/dev/null is a hack to support
-        # https://github.com/sjorek/composer-silent-command-plugin
-        ${composer} -n -vvv --no-ansi --format=text -N show "${package}" 2>/dev/null |
+        (
+            ${composer} -n --no-ansi --format=text -N -p show "${package}"
+            ${composer} -n --no-ansi --format=text -N show "${package}" 
+        ) 2>/dev/null |
             sed -e 's|$| |g' |
             tr -s ' '
     }
@@ -111,9 +108,7 @@ elif [ "$( type -t '_get_comp_words_by_ref' )" = "function" ]; then
         local composer package
         composer="${1}"
         package="${2}"
-        # -n -vvv ... 2>/dev/null is a hack to support
-        # https://github.com/sjorek/composer-silent-command-plugin
-        ${composer} -n -vvv --no-ansi -nN search "${package}" 2>/dev/null |
+        ${composer} -n --no-ansi -N search "${package}" 2>/dev/null |
             sed -e 's|$| |g' |
             tr -s ' '
     }
