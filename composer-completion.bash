@@ -99,6 +99,8 @@ elif [ "$( type -t '_get_comp_words_by_ref' )" = "function" ]; then
             ${composer} -n --no-ansi --format=text -N -p show "${package}"
             ${composer} -n --no-ansi --format=text -N show "${package}" 
         ) 2>/dev/null |
+            sort |
+            uniq |
             sed -e 's|$| |g' |
             tr -s ' '
     }
@@ -109,6 +111,9 @@ elif [ "$( type -t '_get_comp_words_by_ref' )" = "function" ]; then
         composer="${1}"
         package="${2}"
         ${composer} -n --no-ansi -N search "${package}" 2>/dev/null |
+            cut -f1 -d' ' |
+            sort |
+            uniq |
             sed -e 's|$| |g' |
             tr -s ' '
     }
