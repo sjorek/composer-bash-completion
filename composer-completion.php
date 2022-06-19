@@ -234,9 +234,7 @@ class Generator
      */
     public function load()
     {
-        // -n -vvv ... 2>/dev/null is a hack to support
-        // https://github.com/sjorek/composer-silent-command-plugin
-        $json = $this->exec('%s list -n -vvv --no-ansi --format=json 2>/dev/null');
+        $json = $this->exec('%s list -n --no-ansi --format=json 2>/dev/null');
         if (empty($json)) {
             throw new \RuntimeException(
                 'Failed to fetch the composer help json.',
