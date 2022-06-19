@@ -20,6 +20,10 @@ namespace Sjorek\Composer\BashCompletion;
 
 exit(Generator::run());
 
+if (class_exists('Throwable', false) || !class_alias('Throwable', __NAMESPACE__ . '\\Throwable')) {
+    interface Throwable {}
+}
+
 /**
  * Composer Bash Completion Generator
  *
@@ -63,7 +67,7 @@ class Generator
             $exitCode = $generator->process();
         } catch (\Exception $e) {
             $exitCode = $e->getCode() ?: self::EXIT_UNKNOWN_EXCEPTION;
-        } catch (\Throwable $t) {
+        } catch (Throwable $t) {
             $exitCode = $t->getCode() ?: self::EXIT_UNKNOWN_ERROR;
         }
         return $exitCode;
@@ -194,7 +198,7 @@ class Generator
 
             echo PHP_EOL;
             printf('composer=%s' . PHP_EOL, escapeshellarg($this->composer));
-            printf('cmd=%s' . PHP_EOL, escapeshellarg($this->command ?? ''));
+            printf('cmd=%s' . PHP_EOL, escapeshellarg(null === $this->command ? '' : $this->command));
             printf('args=%s' . PHP_EOL, escapeshellarg(implode(PHP_EOL, $this->arguments)));
             printf('opts=%s' . PHP_EOL, escapeshellarg(implode(PHP_EOL, $this->options)));
 //             printf('commands=%s' . PHP_EOL, escapeshellarg(implode(' ', $this->commands)));
