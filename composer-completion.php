@@ -66,9 +66,12 @@ class Generator
             $generator = new Generator($current, $previous, $compwords, $isOption, $isAssigment);
             $exitCode = $generator->process();
         } catch (\Exception $e) {
-            $exitCode = $e->getCode() ?: self::EXIT_UNKNOWN_EXCEPTION;
+            $exitCode = $e->getCode() ? $e->getCode() : self::EXIT_UNKNOWN_EXCEPTION;
         } catch (Throwable $t) {
-            $exitCode = $t->getCode() ?: self::EXIT_UNKNOWN_ERROR;
+            $exitCode = self::EXIT_UNKNOWN_ERROR;
+            if (method_exists($t, 'getCode')) {
+                $exitCode = $t->getCode() ? $t->getCode() : self::EXIT_UNKNOWN_ERROR;
+            }
         }
         return $exitCode;
     }
@@ -234,9 +237,7 @@ class Generator
      */
     public function load()
     {
-        // -n -vvv ... 2>/dev/null is a hack to support
-        // https://github.com/sjorek/composer-silent-command-plugin
-        $json = $this->exec('%s list -n -vvv --no-ansi --format=json 2>/dev/null');
+        $json = $this->exec('%s list -n --no-ansi --format=json 2>/dev/null');
         if (empty($json)) {
             throw new \RuntimeException(
                 'Failed to fetch the composer help json.',
@@ -401,6 +402,7 @@ class Generator
                 break;
             case 'binary':
                 if ($command === 'exec') {
+                    $exec = $this->exec('%s exec -lq 2>/dev/null');
                     $this->arguments = array_map(
                         function($binary) {
                             return substr($binary, 2) . ' ';
@@ -408,11 +410,7 @@ class Generator
                         array_filter(
                             explode(
                                 PHP_EOL,
-                                // -n -vvv ... 2>/dev/null is a hack to support
-                                // https://github.com/sjorek/composer-silent-command-plugin
-                                $this->exec(
-                                    '%s exec -lq 2>/dev/null'
-                                ) ?: ''
+                                $exec ? $exec : ''
                             ),
                             function($line) {
                                 return 0 < strlen(trim($line)) && 0 === strpos($line, '- ');
