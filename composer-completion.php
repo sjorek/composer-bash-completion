@@ -20,7 +20,7 @@ namespace Sjorek\Composer\BashCompletion;
 
 exit(Generator::run());
 
-if (class_exists('Throwable', false) || !class_alias('Throwable', __NAMESPACE__ . '\\Throwable')) {
+if (!interface_exists('Throwable', false) || !class_alias('Throwable', __NAMESPACE__ . '\\Throwable')) {
     interface Throwable {}
 }
 
